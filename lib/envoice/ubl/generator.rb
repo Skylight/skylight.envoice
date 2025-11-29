@@ -1,7 +1,12 @@
 # frozen_string_literal: true
+
+require 'nokogiri'
+require 'base64'
+
 module Envoice
   module Ubl
     class Generator
+
       def self.generate_ubl_invoice(document)
         raise "Document should be an instance of `Envoice::Ubl::Document`" unless document.instance_of?(Envoice::Ubl::Document)
         raise "Document should be an invoice" unless document.invoice?
@@ -43,11 +48,11 @@ module Envoice
               self._build_party(acp, document.receiver)
             end
 
-            if document.payment_means.present?
+            if document.payment_means
               self._build_payment_means_for_note(xml, document.payment_means)
             end
 
-            if document.payment_terms.present?
+            if document.payment_terms.to_s != ''
               xml['cac'].PaymentTerms do |pt|
                 pt['cbc'].Note document.payment_terms
               end
@@ -131,7 +136,7 @@ module Envoice
 
           p['cac'].PostalAddress do |pa|
             pa['cbc'].StreetName party.address_information
-            pa['cbc'].AdditionalStreetName party.additional_address_information if party.additional_address_information.present?
+            pa['cbc'].AdditionalStreetName party.additional_address_information if party.additional_address_information.to_s != ''
             pa['cbc'].CityName party.city
             pa['cbc'].PostalZone party.zip_code
 
@@ -180,7 +185,7 @@ module Envoice
               tst['cac'].TaxCategory do |tc|
                 tc['cbc'].ID tax_group.classified_tax_category
                 tc['cbc'].Percent tax_group.tax_rate
-                tc['cbc'].TaxExemptionReason tax_group.tax_exemption_reason if tax_group.tax_exemption_reason.present?
+                tc['cbc'].TaxExemptionReason tax_group.tax_exemption_reason if tax_group.tax_exemption_reason.to_s != ''
                 tc['cac'].TaxScheme do |ts|
                   ts['cbc'].ID 'VAT'
                 end
@@ -207,7 +212,7 @@ module Envoice
             il['cbc'].InvoicedQuantity(line.quantity, unitCode: line.unit)
             il['cbc'].LineExtensionAmount(line.line_extension_amount, currencyID: line.currency)
             il['cac'].Item do |i|
-              i['cbc'].Description line.description if line.description.present?
+              i['cbc'].Description line.description if line.description.to_s != ''
               i['cbc'].Name line.name
               i['cac'].ClassifiedTaxCategory do |ctc|
                 ctc['cbc'].ID line.classified_tax_category
@@ -231,7 +236,7 @@ module Envoice
             il['cbc'].CreditedQuantity(line.quantity, unitCode: line.unit)
             il['cbc'].LineExtensionAmount(line.line_extension_amount, currencyID: line.currency)
             il['cac'].Item do |i|
-              i['cbc'].Description line.description if line.description.present?
+              i['cbc'].Description line.description if line.description.to_s != ''
               i['cbc'].Name line.name
               i['cac'].ClassifiedTaxCategory do |ctc|
                 ctc['cbc'].ID line.classified_tax_category

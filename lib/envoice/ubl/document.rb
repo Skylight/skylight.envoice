@@ -76,8 +76,8 @@ module Envoice
 
           classified_tax_category = classified_tax_categories.first
           tax_exemption_reason = Envoice::Ubl::Document.tax_exemption_reason(classified_tax_category)
-          total_vat_amount = lines.sum(&:tax_amount)
-          total_amount_without_vat = lines.sum(&:line_extension_amount)
+          total_vat_amount = lines.sum(&:tax_amount).round(2)
+          total_amount_without_vat = lines.sum(&:line_extension_amount).round(2)
 
           Envoice::Ubl::TaxGroup.new(tax_rate: tax_rate, classified_tax_category: classified_tax_category, tax_exemption_reason: tax_exemption_reason, total_vat_amount: total_vat_amount, total_amount_without_vat: total_amount_without_vat)
         end.sort_by(&:tax_rate)

@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     envoice (0.1.0)
+      nokogiri (~> 1.13)
 
 GEM
   remote: https://rubygems.org/
@@ -16,12 +17,15 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     minitest (5.26.1)
+    nokogiri (1.15.7-x86_64-linux)
+      racc (~> 1.4)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
     psych (5.2.6)
       date
       stringio
+    racc (1.8.1)
     rake (13.3.1)
     rdoc (6.16.1)
       erb

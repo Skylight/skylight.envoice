@@ -49,7 +49,7 @@ module Envoice
 
       def address_information
         address_information = "#{street} #{number}".strip
-        if bus.present?
+        if bus.to_s != ''
           address_information = "#{address_information} - #{bus}".strip
         end
 
