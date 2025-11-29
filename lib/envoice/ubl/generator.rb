@@ -3,7 +3,7 @@ module Envoice
   module Ubl
     class Generator
       def self.generate_ubl_invoice(document)
-        raise "Document should be an instance of `Accounting::Ubl::Document`" unless document.instance_of?(Accounting::Ubl::Document)
+        raise "Document should be an instance of `Envoice::Ubl::Document`" unless document.instance_of?(Envoice::Ubl::Document)
         raise "Document should be an invoice" unless document.invoice?
 
         namespaces = {

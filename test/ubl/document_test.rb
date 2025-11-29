@@ -1,0 +1,57 @@
+# frozen_string_literal: true
+
+require "test_helper"
+require "date"
+
+class TestEnvoiceUblDocument < Minitest::Test
+
+  def test_tax_groups
+    document = Envoice::Ubl::Document.new(
+      type: Envoice::Ubl::Document::TYPE_INVOICE,
+      id: 'F2025/001',
+      issue_date: Date.parse('2025-11-18'),
+      due_date: Date.parse('2025-12-18'),
+      currency: 'EUR'
+    )
+    document.receiver = Envoice::Ubl::Party.new(name: 'Receiver BV', street: 'Ontvangststraat', number: 32, city: 2810, zip_code: 'Ontvangdegem', country_iso2: 'BE', vat_number: 'BE0123456444', email: 'info@receiver.be')
+
+    exception = assert_raises(RuntimeError) { document.tax_groups }
+    assert_equal 'No lines on document', exception.message
+
+    document.add_line(name: 'line 001 21%', quantity: 2.5, unit_price: 5, tax_rate: 21.0)
+    document.add_line(name: 'line 002 21%', quantity: 5, unit_price: 10.5, tax_rate: 21.0)
+
+    document.add_line(name: 'line 003 6%', quantity: 3.2, unit_price: 100, tax_rate: 6.0)
+
+    document.add_line(name: 'line 004 0%', quantity: 1, unit_price: 5, tax_rate: 0.0)
+
+    tax_groups = document.tax_groups
+    assert_equal 3, tax_groups.size
+
+    zero = tax_groups[0]
+    assert_equal 0.0, zero.tax_rate
+    assert_equal 'K', zero.classified_tax_category
+    assert_equal 'Intra-community supply - Services B2B', zero.tax_exemption_reason
+    assert_equal 0.0, zero.total_vat_amount
+    assert_equal 5.0, zero.total_amount_without_vat
+
+    six = tax_groups[1]
+    assert_equal 6.0, six.tax_rate
+    assert_equal 'S', six.classified_tax_category
+    assert_nil six.tax_exemption_reason
+    assert_equal 19.2, six.total_vat_amount
+    assert_equal 320.0, six.total_amount_without_vat
+
+    twenty_one = tax_groups[2]
+    assert_equal 21.0, twenty_one.tax_rate
+    assert_equal 'S', twenty_one.classified_tax_category
+    assert_nil twenty_one.tax_exemption_reason
+    assert_equal 13.66, twenty_one.total_vat_amount
+    assert_equal 65.0, twenty_one.total_amount_without_vat
+
+    assert_equal 390.0, document.total_without_vat
+    assert_equal 32.86, document.total_vat_amount
+    assert_equal 422.86, document.total_with_vat
+  end
+
+end

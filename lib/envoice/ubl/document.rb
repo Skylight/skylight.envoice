@@ -8,6 +8,7 @@ module Envoice
 
       attr_reader :type
       attr_accessor :id, :issue_date, :due_date, :currency, :buyer_reference
+      attr_reader :sender, :receiver
 
       attr_accessor :payment_means
       attr_accessor :payment_terms
@@ -48,20 +49,20 @@ module Envoice
 
       def add_line(name:, quantity:, unit_price:, tax_rate:, description: nil, unit: 'ZZ', classified_tax_category: nil)
         classified_tax_category ||= self.class.tax_rate_to_classified_tax_category(tax_rate, self)
-        @lines << Accounting::Ubl::Line.new(id: (lines.size + 1), name: name, quantity: quantity, unit_price: unit_price, currency: @currency, tax_rate: tax_rate, description: description, unit: unit, classified_tax_category: classified_tax_category)
+        @lines << Envoice::Ubl::Line.new(id: (lines.size + 1), name: name, quantity: quantity, unit_price: unit_price, currency: @currency, tax_rate: tax_rate, description: description, unit: unit, classified_tax_category: classified_tax_category)
       end
 
       def add_attachment(absolute_file_name:, id:, description:, mime_type:)
-        @attachments << Accounting::Ubl::Attachment.new(absolute_file_name: absolute_file_name, id: id, description: description, mime_type: mime_type)
+        @attachments << Envoice::Ubl::Attachment.new(absolute_file_name: absolute_file_name, id: id, description: description, mime_type: mime_type)
       end
 
       def sender=(value)
-        raise "Sender is not a Party" unless value.instance_of?(Accounting::Ubl::Party)
+        raise "Sender is not a Party" unless value.instance_of?(Envoice::Ubl::Party)
         @sender = value
       end
 
       def receiver=(value)
-        raise "Receiver is not a Party" unless value.instance_of?(Accounting::Ubl::Party)
+        raise "Receiver is not a Party" unless value.instance_of?(Envoice::Ubl::Party)
         @receiver = value
       end
 
@@ -74,11 +75,11 @@ module Envoice
           raise "Multiple tax categories `#{classified_tax_categories.inspect}`" if classified_tax_categories.size != 1
 
           classified_tax_category = classified_tax_categories.first
-          tax_exemption_reason = Accounting::Ubl::Document.tax_exemption_reason(classified_tax_category)
+          tax_exemption_reason = Envoice::Ubl::Document.tax_exemption_reason(classified_tax_category)
           total_vat_amount = lines.sum(&:tax_amount)
           total_amount_without_vat = lines.sum(&:line_extension_amount)
 
-          Accounting::Ubl::TaxGroup.new(tax_rate: tax_rate, classified_tax_category: classified_tax_category, tax_exemption_reason: tax_exemption_reason, total_vat_amount: total_vat_amount, total_amount_without_vat: total_amount_without_vat)
+          Envoice::Ubl::TaxGroup.new(tax_rate: tax_rate, classified_tax_category: classified_tax_category, tax_exemption_reason: tax_exemption_reason, total_vat_amount: total_vat_amount, total_amount_without_vat: total_amount_without_vat)
         end.sort_by(&:tax_rate)
       end
 
