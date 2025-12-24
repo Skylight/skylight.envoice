@@ -25,7 +25,8 @@ class TestEnvoiceUblGenerator < Minitest::Test
       zip_code: '2910',
       country_iso2: Envoice::CountryCode::ISO_2_BE,
       vat_number: 'BE0897703722',
-      email: 'administration@skylight.be'
+      email: 'administration@skylight.be',
+      legal_form: 'RPR Antwerpen'
     )
 
     document.receiver = Envoice::Ubl::Party.new(

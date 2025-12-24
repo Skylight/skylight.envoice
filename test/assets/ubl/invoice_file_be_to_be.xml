@@ -38,6 +38,7 @@
       <cac:PartyLegalEntity>
         <cbc:RegistrationName>Skylight BV</cbc:RegistrationName>
         <cbc:CompanyID>BE0897703722</cbc:CompanyID>
+        <cbc:CompanyLegalForm>RPR Antwerpen</cbc:CompanyLegalForm>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>

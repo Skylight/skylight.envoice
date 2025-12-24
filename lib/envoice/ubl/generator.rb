@@ -28,7 +28,7 @@ module Envoice
             xml['cbc'].DueDate document.due_date.strftime('%Y-%m-%d')
             xml['cbc'].InvoiceTypeCode 380
             xml['cbc'].DocumentCurrencyCode document.currency
-            if document.buyer_reference.empty?
+            if document.buyer_reference.to_s.empty?
               xml["cac"].OrderReference do
                 xml["cbc"].ID document.id
               end
@@ -85,7 +85,7 @@ module Envoice
             # xml['cbc'].DueDate document.expires.strftime('%Y-%m-%d') # not allowed in credit note!
             xml['cbc'].CreditNoteTypeCode 381
             xml['cbc'].DocumentCurrencyCode document.currency
-            if document.buyer_reference.empty?
+            if document.buyer_reference.to_s.empty?
               xml["cac"].OrderReference do
                 xml["cbc"].ID document.id
               end
@@ -155,6 +155,10 @@ module Envoice
           p['cac'].PartyLegalEntity do |partyLegalEntity|
             partyLegalEntity['cbc'].RegistrationName party.name
             partyLegalEntity['cbc'].CompanyID party.vat_number
+
+            unless party.legal_form.to_s.empty?
+              partyLegalEntity['cbc'].CompanyLegalForm party.legal_form
+            end
           end
         end
       end

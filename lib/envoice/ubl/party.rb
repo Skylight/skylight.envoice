@@ -2,7 +2,7 @@ module Envoice
   module Ubl
     class Party
 
-      attr_accessor :peppol_endpoint_scheme_id, :peppol_endpoint_id, :name, :street, :number, :bus, :additional_address_information, :city, :zip_code, :country_iso2, :vat_number, :email
+      attr_accessor :peppol_endpoint_scheme_id, :peppol_endpoint_id, :name, :street, :number, :bus, :additional_address_information, :city, :zip_code, :country_iso2, :vat_number, :email, :legal_form
 
       def self.endpoint_scheme_id_for_country_with_iso2(country_iso2)
         # https://docs.peppol.eu/poacc/billing/3.0/codelist/eas/
@@ -27,7 +27,7 @@ module Envoice
         raise "Unknown endpoint scheme for country with iso2 #{country_iso2}"
       end
 
-      def initialize(name:, street:, number:, city:, zip_code:, country_iso2:, vat_number:, email:, bus: nil, additional_address_information: nil, peppol_endpoint_scheme_id: nil, peppol_endpoint_id: nil)
+      def initialize(name:, street:, number:, city:, zip_code:, country_iso2:, vat_number:, email:, bus: nil, additional_address_information: nil, legal_form: nil, peppol_endpoint_scheme_id: nil, peppol_endpoint_id: nil)
         @name = name
 
         @street = street
@@ -42,6 +42,8 @@ module Envoice
         @vat_number = vat_number
 
         @email = email
+
+        @legal_form = legal_form
 
         @peppol_endpoint_scheme_id = peppol_endpoint_scheme_id || self.class.endpoint_scheme_id_for_country_with_iso2(@country_iso2)
         @peppol_endpoint_id = peppol_endpoint_id || @vat_number
