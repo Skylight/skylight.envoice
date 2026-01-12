@@ -5,7 +5,7 @@ module Envoice
 
       attr_reader :id, :name, :quantity, :unit, :unit_price, :currency, :tax_rate, :description, :classified_tax_category
 
-      def initialize(id:, name:, quantity:, unit_price:, currency:, tax_rate:, classified_tax_category:, description: nil, unit: nil)
+      def initialize(id:, name:, quantity:, unit_price:, currency:, tax_rate:, classified_tax_category:, description: nil, unit: nil, line_extension_amount: nil, tax_amount: nil)
         @id = id
         @name = name
         @quantity = quantity
@@ -15,6 +15,8 @@ module Envoice
         @classified_tax_category = classified_tax_category
         @description = description
         @unit = unit
+        @line_extension_amount = line_extension_amount
+        @tax_amount = tax_amount
       end
 
       def line_extension_amount

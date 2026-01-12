@@ -47,9 +47,9 @@ module Envoice
         @type == TYPE_CREDIT_NOTE
       end
 
-      def add_line(name:, quantity:, unit_price:, tax_rate:, description: nil, unit: 'ZZ', classified_tax_category: nil)
+      def add_line(name:, quantity:, unit_price:, tax_rate:, description: nil, unit: 'ZZ', classified_tax_category: nil, line_extension_amount: nil, tax_amount: nil)
         classified_tax_category ||= self.class.tax_rate_to_classified_tax_category(tax_rate, self)
-        @lines << Envoice::Ubl::Line.new(id: (lines.size + 1), name: name, quantity: quantity, unit_price: unit_price, currency: @currency, tax_rate: tax_rate, description: description, unit: unit, classified_tax_category: classified_tax_category)
+        @lines << Envoice::Ubl::Line.new(id: (lines.size + 1), name: name, quantity: quantity, unit_price: unit_price, currency: @currency, tax_rate: tax_rate, description: description, unit: unit, classified_tax_category: classified_tax_category, line_extension_amount: line_extension_amount, tax_amount: tax_amount)
       end
 
       def add_attachment(absolute_file_name:, id:, description:, mime_type:)

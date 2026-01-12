@@ -54,4 +54,44 @@ class TestEnvoiceUblDocument < Minitest::Test
     assert_equal 422.86, document.total_with_vat
   end
 
+  def test_fix_rounding_issues_by_overriding_line_extension_and_tax_amount
+    document = Envoice::Ubl::Document.new(
+      type: Envoice::Ubl::Document::TYPE_INVOICE,
+      id: 'F2025/001',
+      issue_date: Date.parse('2025-11-18'),
+      due_date: Date.parse('2025-12-18'),
+      currency: 'EUR'
+    )
+    document.add_line(name: 'line 001 21%', quantity: 1.0, unit_price: 171.0744, tax_rate: 21.0)
+    document.add_line(name: 'line 002 21%', quantity: 1.0, unit_price: 171.0744, tax_rate: 21.0)
+    document.add_line(name: 'line 003 21%', quantity: 1.0, unit_price: 82.64, tax_rate: 21.0)
+
+    line = document.lines.first
+    assert_equal 171.07, line.line_extension_amount
+    assert_equal 35.92, line.tax_amount
+
+    assert_equal 424.78, document.total_without_vat
+    assert_equal 89.19, document.total_vat_amount
+    assert_equal 513.97, document.total_with_vat
+
+    document = Envoice::Ubl::Document.new(
+      type: Envoice::Ubl::Document::TYPE_INVOICE,
+      id: 'F2025/001',
+      issue_date: Date.parse('2025-11-18'),
+      due_date: Date.parse('2025-12-18'),
+      currency: 'EUR'
+    )
+    document.add_line(name: 'line 001 21%', quantity: 1.0, unit_price: 171.0744, tax_rate: 21.0, line_extension_amount: 171.07, tax_amount: 35.93)
+    document.add_line(name: 'line 002 21%', quantity: 1.0, unit_price: 171.0744, tax_rate: 21.0, line_extension_amount: 171.07, tax_amount: 35.93)
+    document.add_line(name: 'line 003 21%', quantity: 1.0, unit_price: 82.64, tax_rate: 21.0, line_extension_amount: 82.64, tax_amount: 17.36)
+
+    line = document.lines.first
+    assert_equal 171.07, line.line_extension_amount
+    assert_equal 35.93, line.tax_amount
+
+    assert_equal 424.78, document.total_without_vat
+    assert_equal 89.22, document.total_vat_amount
+    assert_equal 514.00, document.total_with_vat
+  end
+
 end
