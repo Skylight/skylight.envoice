@@ -119,6 +119,7 @@ module Envoice
       def self._build_attachments(xml, attachment)
         xml['cac'].AdditionalDocumentReference do
           xml['cbc'].ID attachment.id
+          xml['cbc'].DocumentTypeCode attachment.document_type_code if attachment.document_type_code.to_s != ''
           xml['cbc'].DocumentDescription attachment.description
           xml['cac'].Attachment do
             xml['cbc'].EmbeddedDocumentBinaryObject(mimeCode: attachment.mime_type, filename: attachment.filename) { xml.text Base64.strict_encode64(attachment.contents) }

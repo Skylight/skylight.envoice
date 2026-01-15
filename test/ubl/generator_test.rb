@@ -57,7 +57,7 @@ class TestEnvoiceUblGenerator < Minitest::Test
     dummy_pdf_filename = File.join(ROOT_PATH, 'test', 'assets', 'test-document-001.pdf')
     assert File.exist?(dummy_pdf_filename)
 
-    document.add_attachment_from_file(absolute_file_name: dummy_pdf_filename, id: 'F2024-005', description: "Invoice F2024-005", mime_type: 'application/pdf')
+    document.add_attachment_from_file(absolute_file_name: dummy_pdf_filename, id: 'F2024-005', description: "Invoice F2024-005", mime_type: 'application/pdf', document_type_code: 130)
 
     expected_ubl_filename = File.join(ROOT_PATH, 'test', 'assets', 'ubl', 'invoice_file_be_to_be.xml')
 
@@ -125,7 +125,7 @@ class TestEnvoiceUblGenerator < Minitest::Test
 
     attachment = File.binread(dummy_pdf_filename)
 
-    document.add_attachment(filename: 'test-document-001.pdf', id: 'F2024-005', description: "Invoice F2024-005", mime_type: 'application/pdf', contents: attachment)
+    document.add_attachment(filename: 'test-document-001.pdf', id: 'F2024-005', description: "Invoice F2024-005", mime_type: 'application/pdf', contents: attachment, document_type_code: 130)
 
     expected_ubl_filename = File.join(ROOT_PATH, 'test', 'assets', 'ubl', 'invoice_file_be_to_be.xml')
 
