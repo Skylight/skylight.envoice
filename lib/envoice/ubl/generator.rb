@@ -121,7 +121,7 @@ module Envoice
           xml['cbc'].ID attachment.id
           xml['cbc'].DocumentDescription attachment.description
           xml['cac'].Attachment do
-            xml['cbc'].EmbeddedDocumentBinaryObject(mimeCode: attachment.mime_type, filename: File.basename(attachment.absolute_file_name)) { xml.text Base64.strict_encode64(File.binread(attachment.absolute_file_name)) }
+            xml['cbc'].EmbeddedDocumentBinaryObject(mimeCode: attachment.mime_type, filename: attachment.filename) { xml.text Base64.strict_encode64(attachment.contents) }
           end
         end
       end

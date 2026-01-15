@@ -52,8 +52,15 @@ module Envoice
         @lines << Envoice::Ubl::Line.new(id: (lines.size + 1), name: name, quantity: quantity, unit_price: unit_price, currency: @currency, tax_rate: tax_rate, description: description, unit: unit, classified_tax_category: classified_tax_category, line_extension_amount: line_extension_amount, tax_amount: tax_amount)
       end
 
-      def add_attachment(absolute_file_name:, id:, description:, mime_type:)
-        @attachments << Envoice::Ubl::Attachment.new(absolute_file_name: absolute_file_name, id: id, description: description, mime_type: mime_type)
+      def add_attachment(filename:, id:, description:, mime_type:, contents:)
+        @attachments << Envoice::Ubl::Attachment.new(filename: filename, id: id, description: description, mime_type: mime_type, contents: contents)
+      end
+
+      def add_attachment_from_file(absolute_file_name:, id:, description:, mime_type:, filename: nil)
+        raise "File does not exist: #{absolute_file_name}" unless File.exist?(absolute_file_name)
+
+        filename ||= File.basename(absolute_file_name)
+        @attachments << Envoice::Ubl::Attachment.new(filename: filename, id: id, description: description, mime_type: mime_type, contents: File.binread(absolute_file_name))
       end
 
       def sender=(value)
