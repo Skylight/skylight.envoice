@@ -7,7 +7,7 @@ module Envoice
       TYPE_CREDIT_NOTE = :credit_note
 
       attr_reader :type
-      attr_accessor :id, :issue_date, :due_date, :currency, :buyer_reference
+      attr_accessor :id, :issue_date, :due_date, :currency, :tax_exemption_reason, :buyer_reference
       attr_reader :sender, :receiver
 
       attr_accessor :payment_means
@@ -19,7 +19,7 @@ module Envoice
 
         return 'S' if tax_rate > 0.0
 
-        document.receiver.in_european_economic_area? ? 'K' : 'E'
+        (document.receiver.in_european_economic_area? && (document.receiver.country_iso2 != document.sender.country_iso2)) ? 'K' : 'E'
       end
 
       def self.tax_exemption_reason(classified_tax_category)
@@ -28,12 +28,13 @@ module Envoice
         nil
       end
 
-      def initialize(type:, id:, issue_date:, due_date:, currency:, buyer_reference: nil)
+      def initialize(type:, id:, issue_date:, due_date:, currency:, tax_exemption_reason: nil, buyer_reference: nil)
         @type = type
         @id = id
         @issue_date = issue_date
         @due_date = due_date
         @currency = currency
+        @tax_exemption_reason = tax_exemption_reason
         @buyer_reference = buyer_reference
         @lines = []
         @attachments = []
@@ -82,12 +83,20 @@ module Envoice
           raise "Multiple tax categories `#{classified_tax_categories.inspect}`" if classified_tax_categories.size != 1
 
           classified_tax_category = classified_tax_categories.first
-          tax_exemption_reason = Envoice::Ubl::Document.tax_exemption_reason(classified_tax_category)
+          tax_exemption_reason = self.tax_exemption_reason_for_tax_rate(tax_rate)
           total_vat_amount = lines.sum(&:tax_amount).round(2)
           total_amount_without_vat = lines.sum(&:line_extension_amount).round(2)
 
           Envoice::Ubl::TaxGroup.new(tax_rate: tax_rate, classified_tax_category: classified_tax_category, tax_exemption_reason: tax_exemption_reason, total_vat_amount: total_vat_amount, total_amount_without_vat: total_amount_without_vat)
         end.sort_by(&:tax_rate)
+      end
+
+      def tax_exemption_reason_for_tax_rate(tax_rate)
+        return nil if tax_rate > 0.0
+
+        raise "`tax_exemption_reason` is not defined for document" if self.tax_exemption_reason.to_s.empty?
+
+        self.tax_exemption_reason
       end
 
       def total_without_vat
